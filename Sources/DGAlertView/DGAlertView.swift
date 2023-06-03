@@ -2,6 +2,12 @@ import UIKit
 
 public class DGAlertView: UIViewController {
     
+    /// Invoked when MaterialActionSheetController is about to dismiss
+    public var willDismiss: (() -> Void)?
+    
+    /// Invoked when MaterialAcionSheetController is completely dismissed
+    public var didDismiss: (() -> Void)?
+    
     private lazy var dimmedView: UIView = {
         let view = UIView()
         view.backgroundColor = .black
@@ -60,11 +66,14 @@ public class DGAlertView: UIViewController {
     }
     
     public func hide() {
+        willDismiss?()
         UIView.animate(withDuration: 0.3) {
             self.dimmedView.alpha = 0.0
             self.contentsView.transform = .init(translationX: 0, y: self.view.frame.height)
         } completion: { _ in
-            self.dismiss(animated: false)
+            self.dismiss(animated: false, completion: {
+                self.didDismiss?()
+            })
         }
     }
     
